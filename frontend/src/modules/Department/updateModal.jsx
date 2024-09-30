@@ -1,38 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import swal from "sweetalert"; // Import SweetAlert 1
 import BASE_URL from "../../assets/global/url";
 
-const CreateModal = ({ show, handleClose, reloadTable }) => {
+const UpdateModal = ({ show, handleClose, reloadTable, departmentData }) => {
+  const [departmentId, setDepartmentId] = useState("");
   const [departmentName, setDepartmentName] = useState("");
   const [departmentCode, setDepartmentCode] = useState("");
   const [status, setStatus] = useState(false);
 
-  const [nameError, setNameError] = useState(false);
-  const [codeError, setCodeError] = useState(false);
+  useEffect(() => {
+    if (departmentData) {
+      setDepartmentId(departmentData.id);
+      setDepartmentName(departmentData.departmentName);
+      setDepartmentCode(departmentData.departmentCode);
+      setStatus(departmentData.status === "Active");
+    }
+  }, [departmentData]);
 
-  const createDepartment = async (e) => {
+  const updateDepartment = async (e) => {
     e.preventDefault();
 
     // Basic form validations
-    let hasError = false;
-
-    if (!departmentName.trim()) {
-      setNameError(true);
-      hasError = true;
-    } else {
-      setNameError(false);
-    }
-
-    if (!departmentCode.trim()) {
-      setCodeError(true);
-      hasError = true;
-    } else {
-      setCodeError(false);
-    }
-
-    if (hasError) {
+    if (!departmentName.trim() || !departmentCode.trim()) {
       swal(
         "Validation Error",
         "Both Department Name and Department Code are required.",
@@ -41,37 +32,34 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
       return;
     }
 
-    const newDepartment = {
+    const updatedDepartment = {
+      departmentId,
       departmentName,
       departmentCode,
       status: status ? "Active" : "Inactive",
     };
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}/department/createDepartment`,
-        newDepartment
+      const response = await axios.put(
+        `${BASE_URL}/department/updateDepartment/${updatedDepartment.departmentId}`, // Update this to your actual endpoint
+        updatedDepartment
       );
 
       if (response.status === 200) {
-        swal("Success", "Department created successfully.", "success");
+        swal("Success", "Department updated successfully.", "success");
 
         // Reload the table and clear inputs
         reloadTable();
-        setDepartmentName("");
-        setDepartmentCode("");
-        setStatus(false);
         handleClose(); // Close the modal
-      } else if (response.status === 201) {
-        swal("Duplicate Entry", "This department already exists.", "info");
       }
     } catch (err) {
+      console.error("Update error:", err);
       swal(
         "Error",
-        "An error occurred while creating the department.",
+        "An error occurred while updating the department.",
         "error"
       );
-      console.error("Error creating department", err);
+      console.error("Error updating department", err);
     }
   };
 
@@ -83,10 +71,10 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
         onHide={handleClose}
         animation={false}
       >
-        <Form noValidate onSubmit={createDepartment}>
+        <Form noValidate onSubmit={updateDepartment}>
           <Modal.Header className="border-0">
             <Modal.Title>
-              <h2>Add New Department</h2>
+              <h2>Update Department {departmentId}</h2>
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
@@ -99,13 +87,7 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
                     required
                     value={departmentName}
                     onChange={(e) => setDepartmentName(e.target.value)}
-                    className={nameError ? "is-invalid" : ""}
                   />
-                  {nameError && (
-                    <Form.Control.Feedback type="invalid">
-                      Department Name is required.
-                    </Form.Control.Feedback>
-                  )}
                 </Form.Group>
               </div>
             </div>
@@ -118,18 +100,12 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
                     required
                     value={departmentCode}
                     onChange={(e) => setDepartmentCode(e.target.value)}
-                    className={codeError ? "is-invalid" : ""}
                   />
-                  {codeError && (
-                    <Form.Control.Feedback type="invalid">
-                      Department Code is required.
-                    </Form.Control.Feedback>
-                  )}
                 </Form.Group>
               </div>
             </div>
             <div className="row">
-              <div className=" col-sm">
+              <div className="col-sm">
                 <Form.Group>
                   <div className="mt-2 row mb-2">
                     <label className="col-sm-3 col-form-label">Status</label>
@@ -157,7 +133,7 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Save
+              Update
             </Button>
           </Modal.Footer>
         </Form>
@@ -166,4 +142,4 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
   );
 };
 
-export default CreateModal;
+export default UpdateModal;
