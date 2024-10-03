@@ -5,28 +5,29 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
-import CreateDepartment from "./createModal";
+import CreateCourse from "./createModal";
 import UpdateModal from "./updateModal";
+import { Button } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 
-function Department() {
+function Course() {
+  const navigate = useNavigate();
+
   const [filteredData, setFilteredData] = useState([]);
   const [inboundData, setInboundData] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(""); // Status filter state
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
-  const [showCreateDepartmentModal, setShowCreateDepartmentModal] =
-    useState(false);
-  const handleShowCreateDepartmentModal = () =>
-    setShowCreateDepartmentModal(true);
-  const handleCloseCreateDepartmentModal = () =>
-    setShowCreateDepartmentModal(false);
+  const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
+  const handleShowCreateCourseModal = () => setShowCreateCourseModal(true);
+  const handleCloseCreateCourseModal = () => setShowCreateCourseModal(false);
 
   const reloadTable = () => {
     axios
-      .get(BASE_URL + "/department/getDepartment")
+      .get(BASE_URL + "/course/getCourse")
       .then((res) => {
         const sortedList = res.data.sort((a, b) => b.id - a.id);
         setInboundData(sortedList);
@@ -55,12 +56,10 @@ function Department() {
           (item.id &&
             typeof item.id === "string" &&
             item.id.includes(search)) ||
-          (item.department_name &&
-            item.department_name
-              .toLowerCase()
-              .includes(search.toLowerCase())) ||
-          (item.department_code &&
-            item.department_code.toLowerCase().includes(search.toLowerCase()))
+          (item.course_name &&
+            item.course_name.toLowerCase().includes(search.toLowerCase())) ||
+          (item.course_code &&
+            item.course_code.toLowerCase().includes(search.toLowerCase()))
         );
       });
     }
@@ -75,13 +74,13 @@ function Department() {
       sortable: true,
     },
     {
-      name: "Department Name",
-      selector: (row) => row.departmentName,
+      name: "Course Name",
+      selector: (row) => row.courseName,
       sortable: true,
     },
     {
-      name: "Department Code",
-      selector: (row) => row.departmentCode,
+      name: "Course Code",
+      selector: (row) => row.courseCode,
       sortable: true,
     },
     {
@@ -93,18 +92,24 @@ function Department() {
           <span style={{ color: "red" }}>✘</span>
         ),
     },
+    {
+      name: "Action",
+      selector: (row) => (
+        <button onClick={() => navigate(`/subject/${row.id}`)}>Subject</button>
+      ),
+    },
   ];
 
   const userData = filteredData.map((data, i) => ({
     key: i,
     id: data.id,
-    departmentName: data.department_name,
-    departmentCode: data.department_code,
+    courseName: data.course_name,
+    courseCode: data.course_code,
     status: data.status,
   }));
 
   const handleUpdateModalToggle = (row) => {
-    setSelectedDepartment(row);
+    setSelectedCourse(row);
     setShowUpdateModal(true);
   };
 
@@ -112,38 +117,38 @@ function Department() {
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(userData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Departments");
-    XLSX.writeFile(wb, "Department_List.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Courses");
+    XLSX.writeFile(wb, "Course_List.xlsx");
   };
 
   // Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
-    doc.text("Department List", 20, 10);
+    doc.text("Course List", 20, 10);
     doc.autoTable({
-      head: [["ID", "Department Name", "Department Code", "Status"]],
+      head: [["ID", "Course Name", "Course Code", "Status"]],
       body: userData.map((row) => [
         row.id,
-        row.departmentName,
-        row.departmentCode,
+        row.courseName,
+        row.courseCode,
         row.status,
       ]),
     });
-    doc.save("Department_List.pdf");
+    doc.save("Course_List.pdf");
   };
 
   return (
     <div className="h-100 w-100 border bg-white custom-container">
       <div className="w-100 p-2 d-flex flex-row justify-content-between">
         <div className="d-flex flex-column title-custom">
-          <span className="fs-3">Department</span>
-          <span>Department LIST</span>
+          <span className="fs-3">Course</span>
+          <span>Course LIST</span>
         </div>
 
         <div>
           <button
             className="btn btn-primary"
-            onClick={handleShowCreateDepartmentModal}
+            onClick={handleShowCreateCourseModal}
           >
             Add New
           </button>
@@ -205,9 +210,9 @@ function Department() {
         />
       </div>
 
-      <CreateDepartment
-        show={showCreateDepartmentModal}
-        handleClose={handleCloseCreateDepartmentModal}
+      <CreateCourse
+        show={showCreateCourseModal}
+        handleClose={handleCloseCreateCourseModal}
         reloadTable={reloadTable}
       />
 
@@ -215,10 +220,10 @@ function Department() {
         show={showUpdateModal}
         handleClose={() => setShowUpdateModal(false)}
         reloadTable={reloadTable}
-        departmentData={selectedDepartment}
+        courseData={selectedCourse}
       />
     </div>
   );
 }
 
-export default Department;
+export default Course;

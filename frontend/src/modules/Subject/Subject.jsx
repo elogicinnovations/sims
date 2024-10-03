@@ -1,32 +1,34 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
+import { useParams } from "react-router-dom"; // For accessing route params
 import BASE_URL from "../../assets/global/url";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
-import CreateDepartment from "./createModal";
+import CreateSubject from "./createModal";
 import UpdateModal from "./updateModal";
+import { Button } from "react-bootstrap";
 
-function Department() {
+function Subject() {
+  const { courseId } = useParams();
   const [filteredData, setFilteredData] = useState([]);
   const [inboundData, setInboundData] = useState([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState(""); // Status filter state
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const [courseName, setCourseName] = useState("");
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState(null);
 
-  const [showCreateDepartmentModal, setShowCreateDepartmentModal] =
-    useState(false);
-  const handleShowCreateDepartmentModal = () =>
-    setShowCreateDepartmentModal(true);
-  const handleCloseCreateDepartmentModal = () =>
-    setShowCreateDepartmentModal(false);
+  const [showCreateSubjectModal, setShowCreateSubjectModal] = useState(false);
+  const handleShowCreateSubjectModal = () => setShowCreateSubjectModal(true);
+  const handleCloseCreateSubjectModal = () => setShowCreateSubjectModal(false);
 
   const reloadTable = () => {
     axios
-      .get(BASE_URL + "/department/getDepartment")
+      .get(`${BASE_URL}/subject/getSubject?course_id=${courseId}`)
       .then((res) => {
         const sortedList = res.data.sort((a, b) => b.id - a.id);
         setInboundData(sortedList);
@@ -35,13 +37,22 @@ function Department() {
   };
 
   useEffect(() => {
+    const fetchCourseName = () => {
+      axios
+        .get(`${BASE_URL}/subject/getCourseNameById?course_id=${courseId}`)
+        .then((res) => {
+          setCourseName(res.data.courseName);
+        })
+        .catch((err) => console.log(err));
+    };
+
+    fetchCourseName();
     reloadTable();
-  }, []);
+  }, [courseId]);
 
   useEffect(() => {
     let filtered = inboundData;
 
-    // Apply status filter
     if (statusFilter) {
       filtered = filtered.filter(
         (item) => item.status.toLowerCase() === statusFilter.toLowerCase()
@@ -55,18 +66,16 @@ function Department() {
           (item.id &&
             typeof item.id === "string" &&
             item.id.includes(search)) ||
-          (item.department_name &&
-            item.department_name
-              .toLowerCase()
-              .includes(search.toLowerCase())) ||
-          (item.department_code &&
-            item.department_code.toLowerCase().includes(search.toLowerCase()))
+          (item.subject_name &&
+            item.subject_name.toLowerCase().includes(search.toLowerCase())) ||
+          (item.subject_code &&
+            item.subject_code.toLowerCase().includes(search.toLowerCase()))
         );
       });
     }
 
     setFilteredData(filtered);
-  }, [search, inboundData, statusFilter]); // Trigger on statusFilter change
+  }, [search, inboundData, statusFilter]);
 
   const columns = [
     {
@@ -75,13 +84,23 @@ function Department() {
       sortable: true,
     },
     {
-      name: "Department Name",
-      selector: (row) => row.departmentName,
+      name: "Subject Name",
+      selector: (row) => row.subjectName,
       sortable: true,
     },
     {
-      name: "Department Code",
-      selector: (row) => row.departmentCode,
+      name: "Subject Code",
+      selector: (row) => row.subjectCode,
+      sortable: true,
+    },
+    {
+      name: "Unit",
+      selector: (row) => row.unit,
+      sortable: true,
+    },
+    {
+      name: "Term",
+      selector: (row) => row.term,
       sortable: true,
     },
     {
@@ -93,57 +112,76 @@ function Department() {
           <span style={{ color: "red" }}>✘</span>
         ),
     },
+    {
+      name: "Competency",
+      selector: (row) =>
+        row.competency === "Active" ? (
+          <span style={{ color: "green" }}>✔</span>
+        ) : (
+          <span style={{ color: "red" }}>✘</span>
+        ),
+      sortable: true,
+    },
   ];
 
   const userData = filteredData.map((data, i) => ({
     key: i,
     id: data.id,
-    departmentName: data.department_name,
-    departmentCode: data.department_code,
+    subjectName: data.subject_name,
+    subjectCode: data.subject_code,
     status: data.status,
+    term: data.term,
+    unit: data.unit,
+    unitHours: data.unit_hours,
+    numeric: data.numeric,
+    competency: data.competency,
   }));
 
   const handleUpdateModalToggle = (row) => {
-    setSelectedDepartment(row);
+    setSelectedSubject(row);
     setShowUpdateModal(true);
   };
 
-  // Export to Excel
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(userData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Departments");
-    XLSX.writeFile(wb, "Department_List.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Subject");
+    XLSX.writeFile(wb, "Subject_List.xlsx");
   };
 
   // Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
-    doc.text("Department List", 20, 10);
+    doc.text("Subject List", 20, 10);
     doc.autoTable({
-      head: [["ID", "Department Name", "Department Code", "Status"]],
+      head: [["ID", "Subject Name", "Subject Code", "Status"]],
       body: userData.map((row) => [
         row.id,
-        row.departmentName,
-        row.departmentCode,
+        row.subjectName,
+        row.subjectCode,
         row.status,
+        row.term,
+        row.unit,
+        row.unitHours,
+        row.numeric,
+        row.competency,
       ]),
     });
-    doc.save("Department_List.pdf");
+    doc.save("Subject_List.pdf");
   };
 
   return (
     <div className="h-100 w-100 border bg-white custom-container">
       <div className="w-100 p-2 d-flex flex-row justify-content-between">
         <div className="d-flex flex-column title-custom">
-          <span className="fs-3">Department</span>
-          <span>Department LIST</span>
+          <span className="fs-3">Subjects for Course: {courseName}</span>
+          <span>Subject LIST</span>
         </div>
 
         <div>
           <button
             className="btn btn-primary"
-            onClick={handleShowCreateDepartmentModal}
+            onClick={handleShowCreateSubjectModal}
           >
             Add New
           </button>
@@ -152,7 +190,6 @@ function Department() {
 
       <div className="w-100 row mx-0 mt-3">
         <div className="col-sm mb-2">
-          {/* Status Filter Dropdown */}
           <select
             className="form-select"
             value={statusFilter}
@@ -195,30 +232,29 @@ function Department() {
         </button>
       </div>
 
-      <div className="w-100 mt-4 container-fluid">
-        <DataTable
-          columns={columns}
-          data={userData}
-          pagination
-          sorting
-          onRowClicked={(row) => handleUpdateModalToggle(row)}
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={userData}
+        pagination
+        sorting
+        onRowClicked={(row) => handleUpdateModalToggle(row)}
+      />
 
-      <CreateDepartment
-        show={showCreateDepartmentModal}
-        handleClose={handleCloseCreateDepartmentModal}
+      <CreateSubject
+        show={showCreateSubjectModal}
+        handleClose={handleCloseCreateSubjectModal}
         reloadTable={reloadTable}
+        courseId={courseId}
       />
 
       <UpdateModal
         show={showUpdateModal}
         handleClose={() => setShowUpdateModal(false)}
         reloadTable={reloadTable}
-        departmentData={selectedDepartment}
+        subjectData={selectedSubject}
       />
     </div>
   );
 }
 
-export default Department;
+export default Subject;

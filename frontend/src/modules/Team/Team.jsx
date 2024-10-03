@@ -5,28 +5,25 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
-import CreateDepartment from "./createModal";
+import CreateTeam from "./createModal";
 import UpdateModal from "./updateModal";
 
-function Department() {
+function Team() {
   const [filteredData, setFilteredData] = useState([]);
   const [inboundData, setInboundData] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(""); // Status filter state
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(null);
 
-  const [showCreateDepartmentModal, setShowCreateDepartmentModal] =
-    useState(false);
-  const handleShowCreateDepartmentModal = () =>
-    setShowCreateDepartmentModal(true);
-  const handleCloseCreateDepartmentModal = () =>
-    setShowCreateDepartmentModal(false);
+  const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
+  const handleShowCreateTeamModal = () => setShowCreateTeamModal(true);
+  const handleCloseCreateTeamModal = () => setShowCreateTeamModal(false);
 
   const reloadTable = () => {
     axios
-      .get(BASE_URL + "/department/getDepartment")
+      .get(BASE_URL + "/team/getTeam")
       .then((res) => {
         const sortedList = res.data.sort((a, b) => b.id - a.id);
         setInboundData(sortedList);
@@ -55,12 +52,10 @@ function Department() {
           (item.id &&
             typeof item.id === "string" &&
             item.id.includes(search)) ||
-          (item.department_name &&
-            item.department_name
-              .toLowerCase()
-              .includes(search.toLowerCase())) ||
-          (item.department_code &&
-            item.department_code.toLowerCase().includes(search.toLowerCase()))
+          (item.team_name &&
+            item.team_name.toLowerCase().includes(search.toLowerCase())) ||
+          (item.team_code &&
+            item.team_code.toLowerCase().includes(search.toLowerCase()))
         );
       });
     }
@@ -75,13 +70,13 @@ function Department() {
       sortable: true,
     },
     {
-      name: "Department Name",
-      selector: (row) => row.departmentName,
+      name: "Team Name",
+      selector: (row) => row.teamName,
       sortable: true,
     },
     {
-      name: "Department Code",
-      selector: (row) => row.departmentCode,
+      name: "Team Code",
+      selector: (row) => row.teamCode,
       sortable: true,
     },
     {
@@ -98,13 +93,13 @@ function Department() {
   const userData = filteredData.map((data, i) => ({
     key: i,
     id: data.id,
-    departmentName: data.department_name,
-    departmentCode: data.department_code,
+    teamName: data.team_name,
+    teamCode: data.team_code,
     status: data.status,
   }));
 
   const handleUpdateModalToggle = (row) => {
-    setSelectedDepartment(row);
+    setSelectedTeam(row);
     setShowUpdateModal(true);
   };
 
@@ -112,38 +107,38 @@ function Department() {
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(userData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Departments");
-    XLSX.writeFile(wb, "Department_List.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Teams");
+    XLSX.writeFile(wb, "Team_List.xlsx");
   };
 
   // Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
-    doc.text("Department List", 20, 10);
+    doc.text("Team List", 20, 10);
     doc.autoTable({
-      head: [["ID", "Department Name", "Department Code", "Status"]],
+      head: [["ID", "Team Name", "Team Code", "Status"]],
       body: userData.map((row) => [
         row.id,
-        row.departmentName,
-        row.departmentCode,
+        row.teamName,
+        row.teamCode,
         row.status,
       ]),
     });
-    doc.save("Department_List.pdf");
+    doc.save("Team_List.pdf");
   };
 
   return (
     <div className="h-100 w-100 border bg-white custom-container">
       <div className="w-100 p-2 d-flex flex-row justify-content-between">
         <div className="d-flex flex-column title-custom">
-          <span className="fs-3">Department</span>
-          <span>Department LIST</span>
+          <span className="fs-3">Team</span>
+          <span>Team LIST</span>
         </div>
 
         <div>
           <button
             className="btn btn-primary"
-            onClick={handleShowCreateDepartmentModal}
+            onClick={handleShowCreateTeamModal}
           >
             Add New
           </button>
@@ -205,9 +200,9 @@ function Department() {
         />
       </div>
 
-      <CreateDepartment
-        show={showCreateDepartmentModal}
-        handleClose={handleCloseCreateDepartmentModal}
+      <CreateTeam
+        show={showCreateTeamModal}
+        handleClose={handleCloseCreateTeamModal}
         reloadTable={reloadTable}
       />
 
@@ -215,10 +210,10 @@ function Department() {
         show={showUpdateModal}
         handleClose={() => setShowUpdateModal(false)}
         reloadTable={reloadTable}
-        departmentData={selectedDepartment}
+        teamData={selectedTeam}
       />
     </div>
   );
 }
 
-export default Department;
+export default Team;

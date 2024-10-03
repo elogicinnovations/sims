@@ -49,17 +49,22 @@ const Sidebar = ({ onModuleChange }) => {
               showUserMasterDataDropdown ? "expanded" : ""
             }`}
           >
-            <Link className="nav-link" to={"/admin/masterList"}>
-              <li className="nest-submodule">MasterList</li>
-            </Link>
-
-            <Link className="nav-link" to={"/userRole"}>
-              <li className="nest-submodule">User Role</li>
+            <Link to={"/user-role"} className="nav-link">
+              <li className="module">User Role</li>
             </Link>
           </ul>
         </ul>{" "}
         <Link to={"/Department"} className="nav-link">
           <li className="module">Department</li>
+        </Link>
+        <Link to={"/Section"} className="nav-link">
+          <li className="module">Section</li>
+        </Link>
+        <Link to={"/Course"} className="nav-link">
+          <li className="module">Course</li>
+        </Link>
+        <Link to={"/Team"} className="nav-link">
+          <li className="module">Team</li>
         </Link>
       </ul>{" "}
     </div>
