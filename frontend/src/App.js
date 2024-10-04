@@ -17,6 +17,7 @@ import Section from "./modules/Section/Section.jsx";
 import Course from "./modules/Course/Course.jsx";
 import Subject from "./modules/Subject/Subject.jsx";
 import Team from "./modules/Team/Team.jsx";
+import Staff from "./modules/Staff/Staff.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -63,6 +64,7 @@ function AppContent() {
                       <Route path="/Course" element={<Course />} />
                       <Route path="/Subject/:courseId" element={<Subject />} />
                       <Route path="/Team" element={<Team />} />
+                      <Route path="/Staff" element={<Staff />} />
                     </Routes>
                   </div>
                 </div>

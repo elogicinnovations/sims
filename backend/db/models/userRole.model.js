@@ -22,15 +22,15 @@ const UserRole = sequelize.define("userRole", {
   col_authorization: {
     type: DataTypes.STRING(5000), // Change to STRING type
     allowNull: true,
-    get() {
-      // Deserialize the JSON string to an array
-      const value = this.getDataValue("col_authorization");
-      return value ? JSON.parse(value) : [];
-    },
-    set(value) {
-      // Serialize the array to a JSON string
-      this.setDataValue("col_authorization", JSON.stringify(value));
-    },
+    // get() {
+    //   // Deserialize the JSON string to an array
+    //   const value = this.getDataValue("col_authorization");
+    //   return value ? JSON.parse(value) : [];
+    // },
+    // set(value) {
+    //   // Serialize the array to a JSON string
+    //   this.setDataValue("col_authorization", JSON.stringify(value));
+    // },
   },
 });
 

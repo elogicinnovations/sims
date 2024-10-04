@@ -15,6 +15,7 @@ const section = require("./routes/section.route");
 const course = require("./routes/course.route");
 const subject = require("./routes/subject.route");
 const team = require("./routes/team.route");
+const staff = require("./routes/staff.route");
 
 app.use("/masterList", masterRoute);
 app.use("/userRole", userRoute);
@@ -23,6 +24,7 @@ app.use("/section", section);
 app.use("/course", course);
 app.use("/subject", subject);
 app.use("/team", team);
+app.use("/staff", staff);
 
 app.listen(port, () => {
   console.log(`listening to port ${port}`);

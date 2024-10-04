@@ -26,7 +26,7 @@ const Staff = sequelize.define("staff", {
   last_name: {
     type: DataTypes.STRING,
   },
-  initial_name: {
+  initial: {
     type: DataTypes.STRING,
   },
   contact: {
@@ -44,8 +44,23 @@ const Staff = sequelize.define("staff", {
   password: {
     type: DataTypes.STRING,
   },
-  user: {
-    type: DataTypes.STRING,
+  col_id: {
+    type: DataTypes.INTEGER,
+  },
+  staff_image: {
+    type: DataTypes.BLOB("long"),
+    allowNull: true,
+    get() {
+      const value = this.getDataValue("staff_image");
+      return value ? value.toString("base64") : null;
+    },
+    set(value) {
+      if (value) {
+        this.setDataValue("staff_image", Buffer.from(value, "base64"));
+      } else {
+        this.setDataValue("staff_image", null);
+      }
+    },
   },
 });
 
