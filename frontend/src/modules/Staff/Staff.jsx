@@ -70,6 +70,21 @@ function Staff() {
       sortable: true,
     },
     {
+      name: "Image",
+      selector: (row) =>
+        row.staffImage ? (
+          <img
+            src={`data:image/jpeg;base64,${row.staffImage}`}
+            alt="staff"
+            width="50"
+            height="50"
+          />
+        ) : (
+          "No Image"
+        ),
+      sortable: true,
+    },
+    {
       name: "Name",
       selector: (row) =>
         row.firstName + " " + row.middleName + " " + row.lastName,
@@ -112,6 +127,7 @@ function Staff() {
     username: data.username,
     password: data.password,
     userRole: data.col_id,
+    staffImage: data.staff_image,
   }));
 
   const handleUpdateModalToggle = (row) => {

@@ -9,7 +9,7 @@ const Staff = sequelize.define("staff", {
     autoIncrement: true,
   },
   employee_no: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
   },
   designation: {
     type: DataTypes.STRING,

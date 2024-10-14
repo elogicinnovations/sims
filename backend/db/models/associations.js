@@ -7,6 +7,9 @@ const Course = require("./course.model");
 const Subject = require("./subject.model");
 const Team = require("./team.model");
 const Staff = require("./staff.model");
+const Group = require("./group.model");
+const Requirement = require("./requirement.model");
+const Scholarship = require("./scholarship.model");
 
 UserRole.hasMany(MasterList, { foreignKey: "col_roleID" });
 MasterList.belongsTo(UserRole, { foreignKey: "col_roleID" });
@@ -30,4 +33,7 @@ module.exports = {
   Subject,
   Team,
   Staff,
+  Group,
+  Requirement,
+  Scholarship,
 };

@@ -18,6 +18,9 @@ import Course from "./modules/Course/Course.jsx";
 import Subject from "./modules/Subject/Subject.jsx";
 import Team from "./modules/Team/Team.jsx";
 import Staff from "./modules/Staff/Staff.jsx";
+import Group from "./modules/Group/Group.jsx";
+import Requirement from "./modules/Requirement/Requirement.jsx";
+import Scholarship from "./modules/Scholarship/Scholarship.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -65,6 +68,9 @@ function AppContent() {
                       <Route path="/Subject/:courseId" element={<Subject />} />
                       <Route path="/Team" element={<Team />} />
                       <Route path="/Staff" element={<Staff />} />
+                      <Route path="/Group" element={<Group />} />
+                      <Route path="/Requirement" element={<Requirement />} />
+                      <Route path="/Scholarship" element={<Scholarship />} />
                     </Routes>
                   </div>
                 </div>

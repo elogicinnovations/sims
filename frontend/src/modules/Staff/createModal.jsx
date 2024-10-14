@@ -29,58 +29,79 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
   const [staffImages, setStaffimages] = useState("");
   const fileInputRefs = useRef(null);
 
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+
+  const validatePasswords = () => {
+    if (!password) {
+      setCodeError(true);
+    } else {
+      setCodeError(false);
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPasswordError(true);
+    } else {
+      setConfirmPasswordError(false);
+    }
+  };
+
   const createStaff = async (e) => {
     e.preventDefault();
+    validatePasswords();
 
     // Basic form validations
     let hasError = false;
 
-    if (!parseInt(employeeNo.trim())) {
-      setEmployeeNo(true);
-      hasError = true;
-    } else {
-      setEmployeeNo(false);
-    }
+    // if (!firstName.trim()) {
+    //   setFirstName(true);
+    //   hasError = true;
+    // } else {
+    //   setFirstName(false);
+    // }
 
-    if (!firstName.trim()) {
-      setFirstName(true);
-      hasError = true;
-    } else {
-      setFirstName(false);
-    }
+    // if (!middleName.trim()) {
+    //   setMiddleName(true);
+    //   hasError = true;
+    // } else {
+    //   setMiddleName(false);
+    // }
 
-    if (!middleName.trim()) {
-      setMiddleName(true);
-      hasError = true;
-    } else {
-      setMiddleName(false);
-    }
+    // if (!lastName.trim()) {
+    //   setLastName(true);
+    //   hasError = true;
+    // } else {
+    //   setLastName(false);
+    // }
 
-    if (!lastName.trim()) {
-      setLastName(true);
-      hasError = true;
-    } else {
-      setLastName(false);
-    }
+    // if (!initial.trim()) {
+    //   setInitial(true);
+    //   hasError = true;
+    // } else {
+    //   setInitial(false);
+    // }
 
-    if (!initial.trim()) {
-      setInitial(true);
-      hasError = true;
-    } else {
-      setInitial(false);
-    }
-
-    if (!email.trim()) {
-      setEmail(true);
-      hasError = true;
-    } else {
-      setEmail(false);
-    }
+    // if (!email.trim()) {
+    //   setEmail(true);
+    //   hasError = true;
+    // } else {
+    //   setEmail(false);
+    // }
 
     if (hasError) {
       swal(
         "Validation Error",
         "Both Staff Name and Staff Code are required.",
+        "warning"
+      );
+      return;
+    }
+
+    if (!confirmPasswordError) {
+      console.log("Form submitted successfully");
+      swal(
+        "Password did not match",
+        "Please check the password carefully.",
         "warning"
       );
       return;
@@ -100,6 +121,7 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
       password,
       department,
       userRole,
+      staffImages,
     };
 
     try {
@@ -125,7 +147,9 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
         setStatus(false);
         setUserNamer("");
         setPassword("");
+        setConfirmPassword("");
         setUserRole("");
+        setStaffimages(null);
         handleClose(); // Close the modal
       } else if (response.status === 201) {
         swal("Duplicate Entry", "This staff already exists.", "info");
@@ -215,7 +239,7 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
           </Modal.Header>
           <Modal.Body>
             <div className="image-section">
-              {staffImages.length === 0 ? (
+              {!staffImages || staffImages.length === 0 ? (
                 <div className="imagedisplaying">
                   <Image size={42} color="#a1a1a1" />
                 </div>
@@ -360,7 +384,7 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label>Email Address</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -451,7 +475,7 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
                 <Form.Group className="mb-3" controlId="password">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -465,6 +489,26 @@ const CreateModal = ({ show, handleClose, reloadTable }) => {
                 </Form.Group>
               </div>
             </div>
+            <div className="row">
+              <div className="col-sm">
+                <Form.Group className="mb-3" controlId="confirmPassword">
+                  <Form.Label>Confirm Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={confirmPasswordError ? "is-invalid" : ""}
+                  />
+                  {confirmPasswordError && (
+                    <Form.Control.Feedback type="invalid">
+                      Passwords do not match.
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
+              </div>
+            </div>
+
             <div className="row">
               <div className="col-sm">
                 <Form.Group className="mb-3" controlId="userRole">

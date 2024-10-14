@@ -89,6 +89,7 @@ router.route("/updateStaff/:param_id").put(async (req, res) => {
       username,
       password,
       userRole,
+      staffImages,
     } = req.body;
 
     const existingData = await Staff.findOne({
@@ -117,6 +118,7 @@ router.route("/updateStaff/:param_id").put(async (req, res) => {
         username: username,
         password: password,
         col_id: userRole,
+        staff_image: staffImages,
       },
       {
         where: { id: staffId },

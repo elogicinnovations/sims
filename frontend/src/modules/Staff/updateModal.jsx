@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import swal from "sweetalert"; // Import SweetAlert 1
 import BASE_URL from "../../assets/global/url";
+import { Image } from "@phosphor-icons/react";
+// import noImg from "../../assets/images/noImg.png";
 
 const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
   const [staffId, setStaffId] = useState("");
@@ -19,12 +21,32 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
   const [password, setPassword] = useState("");
   const [department, setDepartment] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [staffImages, setStaffimages] = useState("");
 
   const [nameError, setNameError] = useState(false);
   const [codeError, setCodeError] = useState(false);
 
   const [departmentMap, setDepartmentMap] = useState([]);
   const [userRoleMap, setUserRoleMap] = useState([]);
+
+  const fileInputRefs = useRef(null);
+
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+
+  const validatePasswords = () => {
+    if (!password) {
+      setCodeError(true);
+    } else {
+      setCodeError(false);
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPasswordError(true);
+    } else {
+      setConfirmPasswordError(false);
+    }
+  };
 
   useEffect(() => {
     if (staffData) {
@@ -42,6 +64,7 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
       setUsername(staffData.username);
       setPassword(staffData.password);
       setUserRole(staffData.userRole);
+      setStaffimages(staffData.staffImage);
     }
   }, [staffData]);
 
@@ -88,6 +111,16 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
       return;
     }
 
+    if (!confirmPasswordError) {
+      console.log("Form submitted successfully");
+      swal(
+        "Password did not match",
+        "Please check the password carefully.",
+        "warning"
+      );
+      return;
+    }
+
     const updatedStaff = {
       staffId,
       employeeNo,
@@ -103,6 +136,7 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
       password,
       department,
       userRole,
+      staffImages,
     };
 
     try {
@@ -127,13 +161,48 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
         setStatus(false);
         setUsername("");
         setPassword("");
+        setConfirmPassword("");
         setUserRole(null);
+        setStaffimages(null);
         handleClose();
       }
     } catch (err) {
       console.error("Update error:", err);
       swal("Error", "An error occurred while updating the staff.", "error");
       console.error("Error updating staff", err);
+    }
+  };
+
+  function selectImageFiles() {
+    fileInputRefs.current.click();
+  }
+
+  const deletecategoryImage = () => {
+    setStaffimages("");
+  };
+
+  const onFileSelects = (event) => {
+    const selectedImages = event.target.files[0]; // Assuming only one file is selected
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    const maxSize = 5 * 1024 * 1024; // 5MB LIMIT
+
+    if (
+      selectedImages &&
+      allowedTypes.includes(selectedImages.type) &&
+      selectedImages.size <= maxSize
+    ) {
+      const reader = new FileReader();
+      reader.readAsDataURL(selectedImages);
+      reader.onload = () => {
+        const base64String = reader.result.split(",")[1];
+        setStaffimages(base64String);
+      };
+    } else {
+      swal({
+        icon: "error",
+        title: "File Selection Error",
+        text: "Please select a valid image file (PNG, JPEG, JPG, or WEBP) with a maximum size of 5MB.",
+      });
     }
   };
 
@@ -148,10 +217,43 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
         <Form noValidate onSubmit={updateStaff}>
           <Modal.Header className="border-0">
             <Modal.Title>
-              <h2>Update Staff {staffId}</h2>
+              <h2>Update Staff</h2>
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <div className="image-section">
+              {!staffImages || staffImages.length === 0 ? (
+                <div className="imagedisplaying">
+                  <Image size={42} color="#a1a1a1" />
+                </div>
+              ) : (
+                <div className="imagedisplaying">
+                  <span className="deleteimages" onClick={deletecategoryImage}>
+                    &times;
+                  </span>
+                  <img src={`data:image/png;base64,${staffImages}`} />
+                </div>
+              )}
+            </div>
+            <div className="uploading-section">
+              <div className="upload-sec-button">
+                <span
+                  className="select"
+                  role="button"
+                  onClick={selectImageFiles}
+                >
+                  Upload
+                </span>
+                <input
+                  type="file"
+                  className="file"
+                  name="file"
+                  ref={fileInputRefs}
+                  onChange={onFileSelects}
+                  required
+                />
+              </div>
+            </div>
             <div className="row">
               <div className="col-sm">
                 <Form.Group className="mb-3" controlId="employeeNo">
@@ -356,7 +458,7 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
                 <Form.Group className="mb-3" controlId="password">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -365,6 +467,25 @@ const UpdateModal = ({ show, handleClose, reloadTable, staffData }) => {
                   {codeError && (
                     <Form.Control.Feedback type="invalid">
                       Password is required.
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-sm">
+                <Form.Group className="mb-3" controlId="confirmPassword">
+                  <Form.Label>Confirm Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={confirmPasswordError ? "is-invalid" : ""}
+                  />
+                  {confirmPasswordError && (
+                    <Form.Control.Feedback type="invalid">
+                      Passwords do not match.
                     </Form.Control.Feedback>
                   )}
                 </Form.Group>

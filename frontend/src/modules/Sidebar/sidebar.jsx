@@ -69,6 +69,15 @@ const Sidebar = ({ onModuleChange }) => {
         <Link to={"/Staff"} className="nav-link">
           <li className="module">Staff</li>
         </Link>
+        <Link to={"/Group"} className="nav-link">
+          <li className="module">Group</li>
+        </Link>
+        <Link to={"/Requirement"} className="nav-link">
+          <li className="module">Requirement</li>
+        </Link>
+        <Link to={"/Scholarship"} className="nav-link">
+          <li className="module">Scholarship</li>
+        </Link>
       </ul>{" "}
     </div>
   );
