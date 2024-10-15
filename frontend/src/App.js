@@ -21,6 +21,7 @@ import Staff from "./modules/Staff/Staff.jsx";
 import Group from "./modules/Group/Group.jsx";
 import Requirement from "./modules/Requirement/Requirement.jsx";
 import Scholarship from "./modules/Scholarship/Scholarship.jsx";
+import Company from "./modules/Company/Company.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -71,6 +72,7 @@ function AppContent() {
                       <Route path="/Group" element={<Group />} />
                       <Route path="/Requirement" element={<Requirement />} />
                       <Route path="/Scholarship" element={<Scholarship />} />
+                      <Route path="/Company" element={<Company />} />
                     </Routes>
                   </div>
                 </div>

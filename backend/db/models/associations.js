@@ -10,6 +10,7 @@ const Staff = require("./staff.model");
 const Group = require("./group.model");
 const Requirement = require("./requirement.model");
 const Scholarship = require("./scholarship.model");
+const Company = require("./company.model");
 
 UserRole.hasMany(MasterList, { foreignKey: "col_roleID" });
 MasterList.belongsTo(UserRole, { foreignKey: "col_roleID" });
@@ -22,6 +23,9 @@ Staff.belongsTo(Department, { foreignKey: "department_id" });
 
 UserRole.hasMany(Staff, { foreignKey: "col_id" });
 Staff.belongsTo(UserRole, { foreignKey: "col_id" });
+
+Staff.hasMany(Company, { foreignKey: "staff_id" });
+Company.belongsTo(Staff, { foreignKey: "staff_id" });
 
 module.exports = {
   MasterList,
@@ -36,4 +40,5 @@ module.exports = {
   Group,
   Requirement,
   Scholarship,
+  Company,
 };

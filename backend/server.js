@@ -30,6 +30,7 @@ const staff = require("./routes/staff.route");
 const group = require("./routes/group.route");
 const requirement = require("./routes/requirement.route");
 const scholarship = require("./routes/scholarship.route");
+const company = require("./routes/company.route");
 
 app.use("/masterList", masterRoute);
 app.use("/userRole", userRoute);
@@ -42,6 +43,7 @@ app.use("/staff", staff);
 app.use("/group", group);
 app.use("/requirement", requirement);
 app.use("/scholarship", scholarship);
+app.use("/company", company);
 
 app.listen(port, () => {
   console.log(`listening to port ${port}`);
